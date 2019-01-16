@@ -1,12 +1,12 @@
 library("docstring")
 library("tictoc")
 
-SCO <- function(S, N, rarity=0.8, w=0.5, MaxTry=5, XMin, XMax, TrueMin=0, ThresHold=1e-8) {
+SCO_NC <- function(S, N, rarity=0.8, w=0.5, MaxTry=5, XMin, XMax, TrueMin=0, ThresHold=1e-8) {
   
-  #' Splitting for Continuous Optimization (SCO)
+  #' Splitting for Continuous Optimization, No Componentwise update (SCO_NC)
   #'
   #' Returns the best solution (minimum) and function value of a function S on a given
-  #' interval [XMin,XMax] after MaxIter iterations found using the SCO method.
+  #' interval [XMin,XMax] after MaxIter iterations found using the SCO_NC method.
   #'
   #' @param S objective function.
   #' @param N sample size.
@@ -22,14 +22,14 @@ SCO <- function(S, N, rarity=0.8, w=0.5, MaxTry=5, XMin, XMax, TrueMin=0, ThresH
   #' Elsevier, Computers & Operations Research 73: 119-131.
   #' 
   #' @examples
-  #' SCO(DeJong1,30,0.4,0.5,5,rep(-100,30),rep(100,30))
+  #' SCO_NC(DeJong1,30,0.4,0.5,5,rep(-100,30),rep(100,30))
   
   tic()
   t <- 0
   n <- length(XMin)
   Ne <- ceiling(N*rarity)
   MaxIter <- 10000
-
+  
   # generate set of points Chi via uniform sampling
   Chi <- matrix(nrow=N,ncol=n)
   for (i in 1:n) {
@@ -82,22 +82,20 @@ SCO <- function(S, N, rarity=0.8, w=0.5, MaxTry=5, XMin, XMax, TrueMin=0, ThresH
         XR <- Eps[R,]
         Sigma <- w*abs(y - XR)
         
-        # update k-th component if evaluation becomes smaller (MaxTry attempts)
-        for (k in sample(n)) {
-          for (Try in 1:MaxTry) {
-            
-            yStar[k] <- yStar[k] + Sigma[k]*rnorm(1)
-            SyStar <- S(yStar)
-            FuncEvals <- FuncEvals + 1
-            
-            # check whether we've found a valid better point
-            if (SyStar > Sy | yStar[k] < XMin[k] | yStar[k] > XMax[k]) {
-              yStar[k] <- y[k]
-            } else {
-              y[k] <- yStar[k]
-              Sy <- SyStar
-              break
-            }
+        # update y if evaluation becomes smaller (MaxTry attempts)
+        for (Try in 1:MaxTry) {
+          
+          yStar <- yStar + Sigma*rnorm(n)
+          SyStar <- S(yStar)
+          FuncEvals <- FuncEvals + 1
+          
+          # check whether we've found a valid better point
+          if (SyStar > Sy | min(yStar < XMin) | min(yStar > XMax)) {
+            yStar <- y
+          } else {
+            y <- yStar
+            Sy <- SyStar
+            break
           }
         }
         
