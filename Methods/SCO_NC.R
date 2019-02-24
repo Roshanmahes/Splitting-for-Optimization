@@ -92,6 +92,7 @@ SCO_NC <- function(S, N, rarity=0.8, w=0.5, MaxTry=5, XMin, XMax, TrueMin=0, Thr
           # check whether we've found a valid better point
           if (SyStar > Sy | min(yStar < XMin) | min(yStar > XMax)) {
             yStar <- y
+            SyStar <- Sy
           } else {
             y <- yStar
             Sy <- SyStar

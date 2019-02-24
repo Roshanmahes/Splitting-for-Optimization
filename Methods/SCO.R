@@ -93,6 +93,7 @@ SCO <- function(S, N, rarity=0.8, w=0.5, MaxTry=5, XMin, XMax, TrueMin=0, ThresH
             # check whether we've found a valid better point
             if (SyStar > Sy | yStar[k] < XMin[k] | yStar[k] > XMax[k]) {
               yStar[k] <- y[k]
+              SyStar <- Sy
             } else {
               y[k] <- yStar[k]
               Sy <- SyStar
