@@ -50,7 +50,7 @@ SCO <- function(S, N, rarity=0.8, w=0.5, MaxTry=5, XMin, XMax, TrueMin=0, ThresH
   # run with simple stopping criterion
   while (b > (TrueMin + ThresHold) && t < MaxIter) {
     
-    # sort Chi by evalutaion value
+    # sort Chi by evaluation value
     Sx <- data.frame(index=1:N,eval=evals)
     SmallSx <- Sx[order(Sx$eval),][1:Ne,]
     Eps <- Chi[SmallSx[,1],]
